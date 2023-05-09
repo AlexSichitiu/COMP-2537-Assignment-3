@@ -5,7 +5,7 @@ async function producePokemon(currentPage, pokemon){
     currentPage < 1 ? currentPage = 1 : currentPage;
     currentPage > Math.ceil(pokemon.length / CARDS_PER_PAGE) ? Math.ceil(pokemon.length / CARDS_PER_PAGE) : currentPage;
     currentPokemon = pokemon.slice((currentPage - 1) * CARDS_PER_PAGE, currentPage * CARDS_PER_PAGE);
-    $('#pokemonCards').empty().append('<h5>Displaying ' + CARDS_PER_PAGE + ' Pokemon out of ' + pokemon.length + '</h5>');
+    $('#pokemonCards').empty().append('<div class="container"><h5>Displaying ' + CARDS_PER_PAGE + ' Pokemon out of ' + pokemon.length + '</h5></div>');
     currentPokemon.forEach(async (givenPokemon) => {
         var res = await axios.get(givenPokemon.url);
         var info = res.data;
@@ -40,15 +40,58 @@ async function updatePages(currentPage, pageCount){
     }
 }
 
+function overlapping(pokemon, referenceList){
+    for (var i = 0; i < referenceList.length; i++){
+        if (pokemon.name == referenceList[i].name){
+            return true;
+        }
+    }
+    return false;
+}
+
 const setup = async () => {
     $('#pokemonCards').empty();
     let response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=810');
+    let typeResponse = await axios.get('https://pokeapi.co/api/v2/type');
     var pokemon = response.data.results;
+    var types = typeResponse.data.results;
     var currentPage = 1;
     var pageCount = Math.ceil(pokemon.length / CARDS_PER_PAGE);
+    var filters = [];
+    filters.fill(false);
     producePokemon(currentPage, pokemon);
     updatePages(currentPage, pageCount);
-    
+    types.forEach((type) => {
+            $('#filters').append(`
+                <input type="checkbox" value="${type.url}" class="filter-option">
+                <label>${type.name}</label>
+            `);
+    });
+        
+    $('body').on('change', '.filter-option', async (e) => {
+        if (e.target.checked){
+            filters.push(e.target.value);
+        } else {
+            var index = filters.indexOf(e.target.value);
+            if (index != -1){
+                filters.splice(index, 1);
+            }
+        }
+        if (filters.length == 0){
+            producePokemon(currentPage, pokemon);
+        } else {
+            let workingPokemon = JSON.parse(JSON.stringify(pokemon));
+            for (var i = 0; i < filters.length; i++){
+                var res = await axios(filters[i]);
+                var unextractedPokemon = res.data.pokemon;
+                var candidatePokemon = unextractedPokemon.map((poke) => poke.pokemon);
+                workingPokemon = workingPokemon.filter((givenPokemon) => {
+                return overlapping(givenPokemon, candidatePokemon);
+            })}
+            producePokemon(currentPage, workingPokemon);
+        }
+            console.log(workingPokemon); 
+    });
 
     $('body').on('click', '.pageButton', async (e) => {
         currentPage = parseInt(e.target.value);
