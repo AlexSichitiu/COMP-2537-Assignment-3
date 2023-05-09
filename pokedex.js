@@ -77,19 +77,15 @@ const setup = async () => {
                 filters.splice(index, 1);
             }
         }
-        if (filters.length == 0){
-            producePokemon(currentPage, pokemon);
-        } else {
-            let workingPokemon = JSON.parse(JSON.stringify(pokemon));
-            for (var i = 0; i < filters.length; i++){
-                var res = await axios(filters[i]);
-                var unextractedPokemon = res.data.pokemon;
-                var candidatePokemon = unextractedPokemon.map((poke) => poke.pokemon);
-                workingPokemon = workingPokemon.filter((givenPokemon) => {
-                return overlapping(givenPokemon, candidatePokemon);
-            })}
-            producePokemon(currentPage, workingPokemon);
-        }
+        let workingPokemon = JSON.parse(JSON.stringify(pokemon));
+        for (var i = 0; i < filters.length; i++){
+            var res = await axios(filters[i]);
+            var unextractedPokemon = res.data.pokemon;
+            var candidatePokemon = unextractedPokemon.map((poke) => poke.pokemon);
+            workingPokemon = workingPokemon.filter((givenPokemon) => {
+            return overlapping(givenPokemon, candidatePokemon);
+        })}
+        producePokemon(currentPage, workingPokemon);
     });
 
     $('body').on('click', '.pageButton', async (e) => {
