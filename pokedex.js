@@ -49,12 +49,27 @@ const setup = async () => {
         updatePages(currentPage, pageCount);
     });
 
-    $('body').on('click', '.pokemonCard', async (e) => {
+    $('body').on('click', '.pokemonCard', async function(e){
         var name = $(this).attr('pokemonName');
-        console.log(name);
         var res = await axios.get('https://pokeapi.co/api/v2/pokemon/' + name);
         $('.modal-title').empty().append(name.toUpperCase());
-        $('.modal-body').empty()
+        $('.modal-body').empty().append(`
+            <img src="${res.data.sprites.front_shiny}" alt="${name}" style="width:90%">
+            <h4>Type(s)</h4>
+            <ul>
+                ${res.data.types.map((type) => `<li>${type.type.name}</li>`).join('')}
+            </ul>
+            <h4>Abilities</h4>
+            <ul>
+                ${res.data.abilities.map((ability) => `<li>${ability.ability.name}</li>`).join('')}
+            </ul>
+            <h4>Stats</h4>
+            <ul>
+                ${res.data.stats.map((stat) => 
+                    `<li>${stat.stat.name.toUpperCase()}: ${stat.base_stat}</li>`)
+                    .join('')}
+            </ul>
+        `)
     });
 }
 
