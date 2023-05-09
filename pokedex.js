@@ -90,7 +90,6 @@ const setup = async () => {
             })}
             producePokemon(currentPage, workingPokemon);
         }
-            console.log(workingPokemon); 
     });
 
     $('body').on('click', '.pageButton', async (e) => {
