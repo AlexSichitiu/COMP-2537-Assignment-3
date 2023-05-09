@@ -5,8 +5,7 @@ async function producePokemon(currentPage, pokemon){
     currentPage < 1 ? currentPage = 1 : currentPage;
     currentPage > Math.ceil(pokemon.length / CARDS_PER_PAGE) ? Math.ceil(pokemon.length / CARDS_PER_PAGE) : currentPage;
     currentPokemon = pokemon.slice((currentPage - 1) * CARDS_PER_PAGE, currentPage * CARDS_PER_PAGE);
-    
-    $('#pokemonCards').empty();
+    $('#pokemonCards').empty().append('<h5>Displaying ' + CARDS_PER_PAGE + ' Pokemon out of ' + pokemon.length + '</h5>');
     currentPokemon.forEach(async (givenPokemon) => {
         var res = await axios.get(givenPokemon.url);
         var info = res.data;
@@ -48,6 +47,7 @@ const setup = async () => {
     var pageCount = Math.ceil(pokemon.length / CARDS_PER_PAGE);
     producePokemon(currentPage, pokemon);
     updatePages(currentPage, pageCount);
+    
 
     $('body').on('click', '.pageButton', async (e) => {
         currentPage = parseInt(e.target.value);
