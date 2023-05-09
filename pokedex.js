@@ -32,7 +32,8 @@ async function updatePages(currentPage, pageCount){
         $('#pages').append(`<button class="btn btn-primary page ml-1 pageButton" value="${currentPage - 1}">Prev</button>`);
     }
     for (var i = lowerPage; i <= upperPage; i++){
-        $('#pages').append(`<button class="btn btn-primary page ml-1 pageButton" value="${i}">${i}</button>`);
+        var buttonStatus = (i == currentPage ? "active" : "");
+        $('#pages').append(`<button class="btn btn-primary page ml-1 pageButton ${buttonStatus}" value="${i}">${i}</button>`);
     }
     if (currentPage != pageCount){
     $('#pages').append(`<button class="btn btn-primary page ml-1 pageButton" value="${currentPage + 1}">Next</button>`);
