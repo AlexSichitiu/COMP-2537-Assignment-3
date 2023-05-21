@@ -54,6 +54,7 @@ const setup = async () => {
     let response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=810');
     let typeResponse = await axios.get('https://pokeapi.co/api/v2/type');
     var pokemon = response.data.results;
+    var workingPokemon = pokemon;
     var types = typeResponse.data.results;
     var currentPage = 1;
     var pageCount = Math.ceil(pokemon.length / CARDS_PER_PAGE);
@@ -77,7 +78,7 @@ const setup = async () => {
                 filters.splice(index, 1);
             }
         }
-        let workingPokemon = JSON.parse(JSON.stringify(pokemon));
+        workingPokemon = JSON.parse(JSON.stringify(pokemon));
         for (var i = 0; i < filters.length; i++){
             var res = await axios(filters[i]);
             var unextractedPokemon = res.data.pokemon;
@@ -85,12 +86,15 @@ const setup = async () => {
             workingPokemon = workingPokemon.filter((givenPokemon) => {
             return overlapping(givenPokemon, candidatePokemon);
         })}
+        currentPage = 1;
         producePokemon(currentPage, workingPokemon);
+        pageCount = Math.ceil(workingPokemon.length / CARDS_PER_PAGE);
+        updatePages(currentPage, pageCount);
     });
 
     $('body').on('click', '.pageButton', async (e) => {
         currentPage = parseInt(e.target.value);
-        producePokemon(currentPage, pokemon);
+        producePokemon(currentPage, workingPokemon);
         updatePages(currentPage, pageCount);
     });
 
